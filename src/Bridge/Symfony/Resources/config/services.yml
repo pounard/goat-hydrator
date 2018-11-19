@@ -1,0 +1,12 @@
+parameters:
+    goat.hydrator.cache_dir: "%kernel.cache_dir%/hydrator"
+
+services:
+
+    goat.hydrator_map:
+        public: false
+        class: Goat\Hydrator\HydratorMap
+        arguments: ["%goat.hydrator.cache_dir%"]
+
+    Goat\Hydrator\HydratorMap:
+        alias: goat.hydrator_map
