@@ -6,7 +6,7 @@ supporting nested object hydration.
 Optionnaly Ocramius/GeneratedHydrator can be seamlessly replaced by
 https://github.com/makinacorpus/generated-hydrator for PHP 5.6 compatibility.
 
-This package provides a Symfon 3.4 and 4.x compatible bundle.
+This package provides a Symfony 3.4 and 4.x compatible bundle.
 
 
 # Get started
@@ -121,6 +121,15 @@ And now, calling `print $a->getB()->getBar() . $a->getB()->getC()->getFoo();` sh
 ## Symfony
 
 ### Configuration
+
+Add the bundle in your `bundles.php` file (there is no flex recipe yet):
+
+```php
+return [
+    // ...
+    Goat\Hydrator\Bridge\Symfony\GoatHydratorBundle::class => ['all' => true],
+];
+```
 
 Use the `goat_hydrator` configuration key:
 
