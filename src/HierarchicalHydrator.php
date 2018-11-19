@@ -32,7 +32,7 @@ final class HierarchicalHydrator implements HydratorInterface
         $this->debug = (bool)$debug;
         $this->hydratorMap = $hydratorMap;
         $this->realHydrator = $hydratorMap->getRealHydrator($class->getClassName());
-        $this->separator = isset($this->separator) ? $separator : self::DEFAULT_SEPARATOR;
+        $this->separator = isset($separator) ? $separator : self::DEFAULT_SEPARATOR;
     }
 
     /**
