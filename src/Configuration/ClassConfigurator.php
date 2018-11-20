@@ -8,6 +8,7 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use phpDocumentor\Reflection\DocBlockFactory;
 
 /**
  * Class configuration parses a class using all information available
@@ -50,10 +51,12 @@ class ClassConfigurator
      */
     static public function createPropertyInfoExtractor()
     {
-        $reflexionExtractor = new ReflectionExtractor();
-        $phpDocExtractor = new PhpDocExtractor();
+        $extractors = [$reflexionExtractor = new ReflectionExtractor()];
+        if (\class_exists(DocBlockFactory::class)) {
+            $extractors[] = new PhpDocExtractor();
+        }
 
-        return new PropertyInfoExtractor([$reflexionExtractor], [$reflexionExtractor, $phpDocExtractor]);
+        return new PropertyInfoExtractor([$reflexionExtractor], $extractors);
     }
 
     /**
