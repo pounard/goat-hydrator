@@ -71,7 +71,15 @@ final class GoatHydratorExtension extends Extension
         if (isset($input['properties'])) {
             foreach ($input['properties'] as $name => $type) {
 
-                if (!$reflexionClass->hasProperty($name)) {
+                $found = false;
+                $parent = $reflexionClass;
+                do {
+                    if ($parent->hasProperty($name)) {
+                        $found = true;
+                    }
+                } while (!$found && ($parent = $parent->getParentClass()));
+
+                if (!$found) {
                     throw new \InvalidArgumentException(\sprintf(
                         "Invalid hydrator configuration for class '%s': property '%s' does not exist",
                         $class, $name
