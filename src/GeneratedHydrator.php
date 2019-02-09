@@ -2,6 +2,8 @@
 
 namespace Goat\Hydrator;
 
+use GeneratedHydrator\Configuration;
+
 /**
  * Hydrator implementation using generated hydrator
  */
@@ -16,19 +18,11 @@ final class GeneratedHydrator extends AbstractHydrator
      * @param string $className
      * @param string $cacheDir
      */
-    public function __construct($className, $cacheDir = null)
+    public function __construct($className, Configuration $configuration = null)
     {
         parent::__construct($className);
 
-        $this->configuration = new \GeneratedHydrator\Configuration($className);
-
-        if (!$cacheDir) {
-            $cacheDir = \sys_get_temp_dir().'/goat-hydrator';
-        }
-        if (!\is_dir($cacheDir) && !@\mkdir($cacheDir)) { // Attempt directory creation
-            throw new \InvalidArgumentException(\sprintf("'%s': could not create directory", $cacheDir));
-        }
-        $this->configuration->setGeneratedClassesTargetDir($cacheDir);
+        $this->configuration = $configuration ?? new Configuration();
 
         $hydratorName = $this->configuration->createFactory()->getHydratorClass();
         $this->hydrator = new $hydratorName();

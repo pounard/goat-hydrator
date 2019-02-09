@@ -3,12 +3,14 @@
 namespace Goat\Hydrator;
 
 use Goat\Hydrator\Configuration\ClassConfiguration;
+use GeneratedHydrator\Configuration;
 
 final class HydratorMap
 {
-    private $cacheDir;
+    private $classBlacklist = [];
     private $configurations = [];
     private $customHydrators = [];
+    private $generatedHydratorConfiguration;
     private $realHydrators = [];
 
     /**
@@ -16,9 +18,18 @@ final class HydratorMap
      *
      * @param string $cacheDir
      */
-    public function __construct($cacheDir = null)
+    public function __construct(Configuration $generatedHydratorConfiguration, array $classBlacklist = [])
     {
-        $this->cacheDir = $cacheDir;
+        $this->classBlacklist = $classBlacklist;
+        $this->generatedHydratorConfiguration = $generatedHydratorConfiguration;
+    }
+
+    /**
+     * Is this class supported
+     */
+    public function supportsClass(string $class): bool
+    {
+        return !\in_array($class, $this->classBlacklist);
     }
 
     /**
@@ -86,7 +97,10 @@ final class HydratorMap
             return $this->realHydrators[$class];
         }
 
-        return $this->realHydrators[$class] = new GeneratedHydrator($class, $this->cacheDir);
+        $configuration = clone $this->generatedHydratorConfiguration;
+        $configuration->setHydratedClassName($class);
+
+        return $this->realHydrators[$class] = new GeneratedHydrator($class, $configuration);
     }
 
     /**
@@ -101,6 +115,10 @@ final class HydratorMap
      */
     public function getRealHydrator($class)
     {
+        if (!$this->supportsClass($class)) {
+            throw new \InvalidArgumentException(\sprintf("Class '%s' is explicitely blacklisted therefore cannot be hydrated.", $class));
+        }
+
         return $this->createHydrator($class);
     }
 
@@ -117,6 +135,10 @@ final class HydratorMap
      */
     public function get($class, $separator = null)
     {
+        if (!$this->supportsClass($class)) {
+            throw new \InvalidArgumentException(\sprintf("Class '%s' is explicitely blacklisted therefore cannot be hydrated.", $class));
+        }
+
         return new HierarchicalHydrator($this->getClassConfiguration($class), $this, $separator);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Goat\Hydrator\Bridge\Symfony;
 
+use GeneratedHydrator\Strategy\ClassNamingStrategy;
+use GeneratedHydrator\Strategy\HashNamingStrategy;
 use Goat\Hydrator\Configuration\ClassConfiguration;
 use Goat\Hydrator\Configuration\ClassConfigurator;
 use Symfony\Component\Config\FileLocator;
@@ -28,9 +30,14 @@ final class GoatHydratorExtension extends Extension
         $loader->load('services.yml');
 
         $mapDefinition = $container->getDefinition('goat.hydrator_map');
+        if (empty($config['blacklist'])) {
+            $blacklist = [];
+        } else {
+            $blacklist = $config['blacklist'];
+        }
 
         if (isset($config['classes'])) {
-            $configurator = new ClassConfigurator($config['blacklist']);
+            $configurator = new ClassConfigurator($blacklist);
             foreach ($config['classes'] as $class => $configuration) {
                 $serviceId = 'goat_hydrator_'.\str_replace('\\', '_', $class);
                 $definition = $this->parseClassConfiguration($class, $configuration, $configurator);
@@ -38,6 +45,12 @@ final class GoatHydratorExtension extends Extension
                 $mapDefinition->addMethodCall('addClassConfiguration', [new Reference($serviceId)]);
             }
         }
+
+        if ($blacklist) {
+            $mapDefinition->setArgument(1, $blacklist);
+        }
+
+        $this->createGeneratedHydratorConfiguration($container, $config);
     }
 
     /**
@@ -46,6 +59,50 @@ final class GoatHydratorExtension extends Extension
     public function getConfiguration(array $config, ContainerBuilder $container)
     {
         return new GoatHydratorConfiguration();
+    }
+
+    /**
+     * From the bundle configuration, create generated hydrator configuration
+     */
+    private function createGeneratedHydratorConfiguration(ContainerBuilder $container, array $config)
+    {
+        $definition = $container->getDefinition('goat.generated_hydrator.configuration');
+
+        if ($directory = $config['target_dir'] ?? null) {
+            if ('/' !== $directory[0]) {
+                $directory = "%kernel.project_dir%/".$directory;
+            }
+            $definition->addMethodCall('setGeneratedClassesTargetDir', [$directory]);
+        }
+        if (isset($config['target_namespace'])) {
+            $definition->addMethodCall('setGeneratedClassesNamespace', [$config['target_namespace']]);
+        }
+        if (isset($config['target_namespace_prefix'])) {
+            $definition->addMethodCall('setNamespacePrefix', [$config['target_namespace_prefix']]);
+        }
+
+        if (isset($config['naming_strategy'])) {
+            $strategyServiceId = 'goat_hydrator.generated_config_name.strategy';
+
+            switch ($config['naming_strategy']) {
+
+                case 'class':
+                    $container->setDefinition(
+                        $strategyServiceId,
+                        (new Definition())->setClass(ClassNamingStrategy::class)->setPublic(false)
+                    );
+                    break;
+
+                case 'hash':
+                    $container->setDefinition(
+                        $strategyServiceId,
+                        (new Definition())->setClass(HashNamingStrategy::class)->setPublic(false)
+                    );
+                    break;
+            }
+
+            $definition->addMethodCall('setNamingStrategy', [new Reference($strategyServiceId)]);
+        }
     }
 
     /**

@@ -1,12 +1,14 @@
-parameters:
-    goat.hydrator.cache_dir: "%kernel.cache_dir%/hydrator"
-
 services:
+
+    goat.generated_hydrator.configuration:
+        public: false
+        class: GeneratedHydrator\Configuration
 
     goat.hydrator_map:
         public: false
         class: Goat\Hydrator\HydratorMap
-        arguments: ["%goat.hydrator.cache_dir%"]
+        arguments: ["@goat.generated_hydrator.configuration"]
+        tags: ['container.hot_path']
 
     Goat\Hydrator\HydratorMap:
         alias: goat.hydrator_map

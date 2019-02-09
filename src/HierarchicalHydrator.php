@@ -56,7 +56,7 @@ final class HierarchicalHydrator implements HydratorInterface
             // Fetch and cache value array key list, so we won't do this for
             // each hydrated object - this is particulary efficient when
             // hydrating object lists incomming from the same SQL query or
-            // same result structure resource.
+            // same result structure stream.
             $this->groupCache[$cacheId] = [];
 
             $first = $group[0];
