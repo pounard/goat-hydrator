@@ -10,6 +10,7 @@ class ClassConfiguration
     private $constructor;
     private $dependencies = [];
     private $properties = [];
+    private $propertyBlacklist = [];
 
     public static function normalizeClassName($className)
     {
@@ -31,7 +32,13 @@ class ClassConfiguration
             $this->dependencies = \array_map([self::class, 'normalizeClassName'], $dependencies);
         }
         if ($properties) {
-            $this->properties = \array_map([self::class, 'normalizeClassName'], $properties);
+            foreach ($properties as $property => $type) {
+                if (null === $type || false === $type) {
+                    $this->propertyBlacklist[$property] = true;
+                } else {
+                    $this->properties[$property] = self::normalizeClassName($type);
+                }
+            }
         }
     }
 
@@ -57,6 +64,14 @@ class ClassConfiguration
     public function getClassDependencies()
     {
         return $this->dependencies;
+    }
+
+    /**
+     * Is property blacklisted
+     */
+    public function isPropertyBlacklisted($property)
+    {
+        return isset($this->propertyBlacklist[$property]);
     }
 
     /**

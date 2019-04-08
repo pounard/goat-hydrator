@@ -144,7 +144,7 @@ final class GoatHydratorExtension extends Extension
                 }
 
                 if (null === $type || false === $type) {
-                    unset($properties[$name]); // Force exclusion
+                    $properties[$name] = null; // Explicit blacklist.
                 } else {
                     if (!\class_exists($type)) {
                         throw new \InvalidArgumentException(\sprintf(
