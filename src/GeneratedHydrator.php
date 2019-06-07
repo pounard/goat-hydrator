@@ -22,7 +22,7 @@ final class GeneratedHydrator extends AbstractHydrator
     {
         parent::__construct($className);
 
-        $this->configuration = $configuration ?? new Configuration();
+        $this->configuration = $configuration ? $configuration : new Configuration();
 
         $hydratorName = $this->configuration->createFactory()->getHydratorClass();
         $this->hydrator = new $hydratorName();

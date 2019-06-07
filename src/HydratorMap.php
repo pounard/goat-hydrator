@@ -27,7 +27,7 @@ final class HydratorMap
     /**
      * Is this class supported
      */
-    public function supportsClass(string $class): bool
+    public function supportsClass($class)
     {
         return !\in_array($class, $this->classBlacklist);
     }
