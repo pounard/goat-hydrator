@@ -141,6 +141,62 @@ class HierachicalHydratorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(24, $four->getFoo());
     }
 
+    public function testExistingNullPropertyIsIgnored()
+    {
+        $hydratorMap = $this->createNestingHydratorDefinition();
+        $hydrator = $hydratorMap->get(HydratedNestingClass::class);
+
+        $values = [
+            'nestedObject1' => null,
+            'nestedObject1.foo' => 5,
+        ];
+
+        $object = $hydrator->createAndHydrateInstance($values);
+        $this->assertInstanceOf(HydratedClass::class, $object->getNestedObject1());
+    }
+
+    public function testExistingEmptyArrayPropertyIsIgnored()
+    {
+        $hydratorMap = $this->createNestingHydratorDefinition();
+        $hydrator = $hydratorMap->get(HydratedNestingClass::class);
+
+        $values = [
+            'nestedObject1' => [],
+            'nestedObject1.foo' => 5,
+        ];
+
+        $object = $hydrator->createAndHydrateInstance($values);
+        $this->assertInstanceOf(HydratedClass::class, $object->getNestedObject1());
+    }
+
+    public function testExistingEmptyStringPropertyIsIgnored()
+    {
+        $hydratorMap = $this->createNestingHydratorDefinition();
+        $hydrator = $hydratorMap->get(HydratedNestingClass::class);
+
+        $values = [
+            'nestedObject1' => '',
+            'nestedObject1.foo' => 5,
+        ];
+
+        $object = $hydrator->createAndHydrateInstance($values);
+        $this->assertInstanceOf(HydratedClass::class, $object->getNestedObject1());
+    }
+
+    public function testExistingPropertyRaiseErrors()
+    {
+        $hydratorMap = $this->createNestingHydratorDefinition();
+        $hydrator = $hydratorMap->get(HydratedNestingClass::class);
+
+        $values = [
+            'nestedObject1' => ['bar' => 'baz'],
+            'nestedObject1.foo' => 5,
+        ];
+
+        $this->expectException(\InvalidArgumentException::class);
+        $hydrator->createAndHydrateInstance($values);
+    }
+
     public function testPropertyBlacklist()
     {
         $this->markTestIncomplete("Implement me");

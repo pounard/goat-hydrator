@@ -81,6 +81,24 @@ final class HierarchicalHydrator implements HydratorInterface
     }
 
     /**
+     * Attempt to guess if property content could be ignored
+     */
+    private function propertyContentCanBeIgnored($value)
+    {
+        if (null === $value) {
+            return true;
+        }
+        if ('' === $value) {
+            return true;
+        }
+        if ([] === $value) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Create nested objects and set them in the new returned dataset
      */
     private function aggregateNestedProperties(array $values, $class, $depth = 1)
@@ -101,7 +119,7 @@ final class HierarchicalHydrator implements HydratorInterface
             // We can't let the hydrator loose any data, but having a conflict
             // here shows the original data we want to hydrate is inconsistent,
             // break and warn the developer.
-            if ($exists) {
+            if ($exists && !$this->propertyContentCanBeIgnored($values[$property])) {
                 if ($this->debug) {
                     throw new \InvalidArgumentException(\sprintf(
                         "Nested property '%s::%s' with class '%s' already has a value of type '%s'",
