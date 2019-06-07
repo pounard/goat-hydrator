@@ -5,24 +5,18 @@ declare(strict_types=1);
 namespace Goat\Hydrator\Tests\Unit;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Goat\Hydrator\Configuration;
+use GeneratedHydrator\Configuration;
 use Goat\Hydrator\HydratorInterface;
-use Goat\Hydrator\HydratorMap;
 use Goat\Hydrator\Configuration\ClassConfiguration;
 
 class HierachicalHydratorTest extends \PHPUnit_Framework_TestCase
 {
-    private function createTemporaryDirectory()
-    {
-        return \sys_get_temp_dir().'/'.\uniqid('test-');
-    }
+    use HydratorTestTrait;
 
-    /**
-     * Test object nesting hydration up to 3 levels of hydration
-     */
-    public function testNesting()
+    private function createNestingHydratorDefinition() /* : HydratorMap */
     {
-        $hydratorMap = new HydratorMap($this->createTemporaryDirectory());
+        $hydratorMap = $this->createHydratorMapInstance();
+
         $hydratorMap->addClassConfiguration(new ClassConfiguration(
             HydratedClass::class,
             [
@@ -31,6 +25,7 @@ class HierachicalHydratorTest extends \PHPUnit_Framework_TestCase
             [],
             HydratorInterface::CONSTRUCTOR_SKIP
         ));
+
         $hydratorMap->addClassConfiguration(new ClassConfiguration(
             HydratedNestingClass::class,
             [
@@ -41,6 +36,22 @@ class HierachicalHydratorTest extends \PHPUnit_Framework_TestCase
             HydratorInterface::CONSTRUCTOR_SKIP
         ));
 
+        $hydratorMap->addClassConfiguration(new ClassConfiguration(
+            RecursivelyHydratedClass::class,
+            ['bar' => RecursivelyHydratedClass::class],
+            [],
+            HydratorInterface::CONSTRUCTOR_SKIP
+        ));
+
+        return $hydratorMap;
+    }
+
+    /**
+     * Test object nesting hydration up to 3 levels of hydration
+     */
+    public function testNesting()
+    {
+        $hydratorMap = $this->createNestingHydratorDefinition();
         $hydrator = $hydratorMap->get(HydratedNestingClass::class);
 
         $values = [
@@ -86,13 +97,7 @@ class HierachicalHydratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testDeepNesting()
     {
-        $hydratorMap = new HydratorMap($this->createTemporaryDirectory());
-        $hydratorMap->addClassConfiguration(new ClassConfiguration(
-            RecursivelyHydratedClass::class,
-            ['bar' => RecursivelyHydratedClass::class],
-            [],
-            HydratorInterface::CONSTRUCTOR_SKIP
-        ));
+        $hydratorMap = $this->createNestingHydratorDefinition();
 
         $values = [
             [
@@ -149,7 +154,7 @@ class HierachicalHydratorTest extends \PHPUnit_Framework_TestCase
         // @todo I am sorry, I need to fix this
         $this->markTestIncomplete("this needs to be implemented properly");
 
-        $hydratorMap = new HydratorMap($this->createTemporaryDirectory());
+        $hydratorMap = $this->createHydratorMapInstance();
 
         //AnnotationRegistry::registerAutoloadNamespace("MyProject\Annotations", "/path/to/myproject/src");
         //AnnotationRegistry::registerLoader('class_exists');

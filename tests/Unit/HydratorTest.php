@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace Goat\Hydrator\Tests\Unit;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Goat\Hydrator\Configuration;
 use Goat\Hydrator\HydratorInterface;
 use Goat\Hydrator\HydratorMap;
 
 class HydratorTest extends \PHPUnit_Framework_TestCase
 {
-    private function createTemporaryDirectory()
-    {
-        return \sys_get_temp_dir().'/'.\uniqid('test-');
-    }
+    use HydratorTestTrait;
 
     /**
      * Test basics
      */
     public function testBasicFeatures()
     {
-        $hydratorMap = new HydratorMap($this->createTemporaryDirectory());
+        $hydratorMap = $this->createHydratorMapInstance();
         $hydrator = $hydratorMap->get(HydratedClass::class);
 
         $test1 = new HydratedClass();
