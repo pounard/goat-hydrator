@@ -104,8 +104,8 @@ final class HierarchicalHydrator implements HydratorInterface
             if ($exists) {
                 if ($this->debug) {
                     throw new \InvalidArgumentException(\sprintf(
-                        "nested property '%s' with class '%s' already has a value of type '%s'",
-                        $property, $childClass, \gettype($values[$property])
+                        "Nested property '%s::%s' with class '%s' already has a value of type '%s'",
+                        $class, $property, $childClass, \gettype($values[$property])
                     ));
                 }
                 continue; // Do not let production explode.
