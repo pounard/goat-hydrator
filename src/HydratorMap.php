@@ -93,10 +93,6 @@ final class HydratorMap
      */
     private function createHydrator($class)
     {
-        if (isset($this->realHydrators[$class])) {
-            return $this->realHydrators[$class];
-        }
-
         $configuration = clone $this->generatedHydratorConfiguration;
         $configuration->setHydratedClassName($class);
 
@@ -115,11 +111,14 @@ final class HydratorMap
      */
     public function getRealHydrator($class)
     {
+        if (isset($this->realHydrators[$class])) {
+            return $this->realHydrators[$class];
+        }
         if (!$this->supportsClass($class)) {
             throw new \InvalidArgumentException(\sprintf("Class '%s' is explicitely blacklisted therefore cannot be hydrated.", $class));
         }
 
-        return $this->createHydrator($class);
+        return $this->realHydrators[$class] = $this->createHydrator($class);
     }
 
     /**
@@ -135,10 +134,6 @@ final class HydratorMap
      */
     public function get($class, $separator = null)
     {
-        if (!$this->supportsClass($class)) {
-            throw new \InvalidArgumentException(\sprintf("Class '%s' is explicitely blacklisted therefore cannot be hydrated.", $class));
-        }
-
         return new HierarchicalHydrator($this->getClassConfiguration($class), $this, $separator);
     }
 }
