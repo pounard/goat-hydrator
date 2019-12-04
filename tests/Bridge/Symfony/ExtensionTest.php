@@ -36,7 +36,8 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             'kernel.bundles'     => array(),
             'kernel.cache_dir'   => $this->createTemporaryDirectory(),
             'kernel.environment' => 'test',
-            'kernel.root_dir'    => __DIR__.'/../../' // src dir
+            'kernel.root_dir'    => __DIR__.'/../../', // src dir
+            'kernel.project_dir' => __DIR__.'/../../', // src dir
         )));
     }
 
