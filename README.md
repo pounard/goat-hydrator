@@ -9,6 +9,17 @@ https://github.com/makinacorpus/generated-hydrator for PHP 5.6 compatibility.
 This package provides a Symfony 3.4 and 4.x compatible bundle.
 
 
+# Status
+
+**Time has passed, and PHP 5.6 is not supported anywhere anymore, as a consequence**
+**this package is not supported anymore**.
+
+Please use [makinacorpus/generated-hydrator-bundle](https://github.com/makinacorpus/generated-hydrator-bundle)
+insetad.
+
+This package may if necessary receive some updates, for bugfixes and security fixes.
+
+
 # Get started
 
 For efficiently hydrating objects, it may benefit from an offline preparation
