@@ -116,20 +116,23 @@ final class HierarchicalHydrator implements HydratorInterface
                 continue;
             }
 
-            // We can't let the hydrator loose any data, but having a conflict
-            // here shows the original data we want to hydrate is inconsistent,
-            // break and warn the developer.
-            if ($exists && !$this->propertyContentCanBeIgnored($values[$property])) {
-                if ($this->debug) {
+            // You can either have properties such as 'foo.bar', 'foo.baz' to
+            // hydrate the 'foo' property with 'bar' and 'baz' properties but
+            // you also may already have hydrated the complete object.
+            // In this case, we don't want to explode, except if there are both
+            // 'foo' and 'foo.bar' in the incomming array.
+            if ($nestedValues = $this->aggregatePropertiesOf($depth, $property, $values)) {
+
+                // Having $nestedValues here means that we do have 'foo.bar'
+                // nested properties, having $exists as well would means we
+                // also have an already hydrated 'foo', this is a conflict.
+                if ($exists && !$this->propertyContentCanBeIgnored($values[$property])) {
                     throw new \InvalidArgumentException(\sprintf(
                         "Nested property '%s::%s' with class '%s' already has a value of type '%s'",
                         $class, $property, $childClass, \gettype($values[$property])
                     ));
                 }
-                continue; // Do not let production explode.
-            }
 
-            if ($nestedValues = $this->aggregatePropertiesOf($depth, $property, $values)) {
                 $values[$property] = $this
                     ->hydratorMap
                     ->getRealHydrator($childClass)

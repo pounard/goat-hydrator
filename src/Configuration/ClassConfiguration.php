@@ -33,11 +33,7 @@ class ClassConfiguration
         }
         if ($properties) {
             foreach ($properties as $property => $type) {
-                if (null === $type || false === $type) {
-                    $this->propertyBlacklist[$property] = true;
-                } else {
-                    $this->properties[$property] = self::normalizeClassName($type);
-                }
+                $this->properties[$property] = self::normalizeClassName($type);
             }
         }
     }
@@ -64,14 +60,6 @@ class ClassConfiguration
     public function getClassDependencies()
     {
         return $this->dependencies;
-    }
-
-    /**
-     * Is property blacklisted
-     */
-    public function isPropertyBlacklisted($property)
-    {
-        return isset($this->propertyBlacklist[$property]);
     }
 
     /**
